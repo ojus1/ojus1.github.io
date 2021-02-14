@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Surya Kant Sahu</title>
+    <link>https://ojus1.github.io/tags/index/</link>
+    <description>Surya&#39;s personal website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2021, Surya Kant Sahu
+All rights reserved.</copyright><atom:link href="https://ojus1.github.io/tags/index/index.xml" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Posts</title>
+        <link>https://ojus1.github.io/posts/</link>
+        <pubDate>Sun, 14 Feb 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://ojus1.github.io/posts/</guid>
+        <description></description>
+      </item>
+    
+  </channel>
+</rss>

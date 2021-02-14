@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+  <head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Hugo 0.68.3">
+<meta name="theme" content="Color Your World -- gitlab.com/rmaguiar/hugo-theme-color-your-world">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<title>Vectorizing Time with Time2Vec | Surya Kant Sahu</title>
+
+
+<meta name="author" content="Surya Kant Sahu">
+<meta name="description" content="Article that showcases the paper &#39;Time2Vec: Learning a Vector Representation of Time&#39;">
+
+
+<meta name="robots" content="index follow">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+
+
+
+  
+    <link rel="canonical" href="https://ojus1.github.io/posts/time2vec/">
+  
+
+
+
+
+
+
+
+
+<meta property="og:site_name" content="Surya Kant Sahu">
+<meta property="og:title" content="Vectorizing Time with Time2Vec">
+<meta property="og:description" content="Article that showcases the paper &#39;Time2Vec: Learning a Vector Representation of Time&#39;">
+  <meta property="og:url" content="https://ojus1.github.io/posts/time2vec/">
+
+
+
+
+
+
+
+
+  <meta property="og:type" content="article">
+  
+  
+    <meta property="article:published_time" content="2021-02-14">
+    <meta property="article:modified_time" content="2021-02-14">
+    <meta property="og:updated_time" content="2021-02-14">
+  
+
+  
+    <meta property="article:author" content="Surya Kant Sahu">
+  
+  
+  
+  
+
+
+
+
+
+
+
+  <meta name="twitter:dnt" content="on">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="theme-color" content="#222">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+
+
+
+
+
+
+
+
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+    
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+        
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+        
+      
+      
+    
+
+  
+
+    
+    
+
+    
+    
+      
+      
+    
+
+  
+
+    
+    
+
+    
+    
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+    
+      
+      
+    
+
+  
+
+    
+    
+
+    
+    
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+    
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+        
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+      
+    
+
+  
+
+    
+    
+
+    
+
+      
+        
+      
+      
+    
+
+  
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "mainEntityOfPage": {
+        "@type": "WebSite",
+        "@id": "https:\/\/ojus1.github.io"
+      },
+      "headline": "Vectorizing Time with Time2Vec",
+      "description": "Article that showcases the paper 'Time2Vec: Learning a Vector Representation of Time'",
+      
+      "url": "https:\/\/ojus1.github.io\/posts\/time2vec\/",
+      "inLanguage": "en",
+      "datePublished": "2021-02-14",
+      "dateModified": "2021-02-14",
+      "wordCount" : "515",
+      "publisher": {
+        "@type": "Person",
+        "name": "Surya Kant Sahu"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Surya Kant Sahu",
+        "description": "One who likes to play the Piano while thinking about methods to optimize Tensor operations in the horrible code that he writes.",
+        "sameAs": ["https://github.com/ojus1","https://www.linkedin.com/in/surya-kant-oju","https://soundcloud.com/surya-kant-794964473","https://youtube.com/channel/UCP-bxBVzkKknQLvxI8ZAotg"]
+      }
+    }
+  </script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.min.94583b375b1ec3b702a2914c4dfd825ea4f10e186fd0de7a793a086298f33e4675dd9e3b23745f17f6484e0f15450e007b00a314fdcf11bcbfafdcd15da84033.css" integrity="sha512-lFg7N1sew7cCopFMTf2CXqTxDhhv0N56eToIYpjzPkZ13Z47I3RfF/ZITg8VRQ4AewCjFP3PEby/r9zRXahAMw==">
+
+
+
+<noscript>
+
+  
+  
+
+  
+
+    
+      <meta name="theme-color" content="#dd587c">
+    
+
+  
+
+  <style>
+  
+    html {
+      --accent: #dd587c;
+    }
+  
+    .req-js,
+    img.lazyload {
+      display: none;
+    }
+    
+  </style>
+  
+</noscript>
+
+
+
+
+
+
+  <link rel="preload" href="/fonts/open-sans-v17-latin-700.woff" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/open-sans-v17-latin-700.woff2" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/open-sans-v17-latin-italic.woff" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/open-sans-v17-latin-italic.woff2" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/open-sans-v17-latin-regular.woff" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/open-sans-v17-latin-regular.woff2" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/oswald-v29-latin-700.woff" as="font" crossorigin="anonymous">
+
+  <link rel="preload" href="/fonts/oswald-v29-latin-700.woff2" as="font" crossorigin="anonymous">
+
+
+
+
+
+<script defer src="/js/lazysizes.min.min.f2ca9a3896206137af53a26aa8bdf8266f7b361b77ec1c82b6f5ce63aaaaad9bdd52892d35f64b54f9a1546c473d2b71131e0eb85e5212dffcdae0416426cc2e.js" crossorigin="anonymous"></script>
+
+
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous">
+
+
+
+
+
+
+  <link rel="me" href="https://github.com/ojus1"> 
+
+  <link rel="me" href="https://www.linkedin.com/in/surya-kant-oju"> 
+
+  <link rel="me" href="https://soundcloud.com/surya-kant-794964473"> 
+
+  <link rel="me" href="https://youtube.com/channel/UCP-bxBVzkKknQLvxI8ZAotg"> 
+
+
+
+
+
+
+
+  <script>
+    
+      'use strict';const ROOT=document.documentElement;const SHEET=document.documentElement.style;const META_THEME_COLOR=document.querySelector('meta[name=theme-color]');function setDark(){ROOT.dataset.mode='dark'};function setLight(){ROOT.dataset.mode='light'};if(localStorage.getItem('isDark')=='true'){setDark()}else if(localStorage.getItem('isDark')=='false'){setLight()};function getAccent(){if(ROOT.dataset.mode==='dark'){if(localStorage.getItem('darkAccent')===null){var currentAccent="#dd587c"}else{var currentAccent=localStorage.getItem('darkAccent')
+}}else if(ROOT.dataset.mode==='light'){if(localStorage.getItem('lightAccent')===null){var currentAccent="#225670"}else{var currentAccent=localStorage.getItem('lightAccent')
+}};return currentAccent};var activeAccent=getAccent();SHEET.setProperty('--accent',activeAccent);META_THEME_COLOR.setAttribute('content',activeAccent);function updateAccent(){var activeAccent=getAccent();SHEET.setProperty('--accent',activeAccent);PALETTE.value=activeAccent;META_THEME_COLOR.setAttribute('content',activeAccent);};document.addEventListener('DOMContentLoaded',function(){PALETTE.value=activeAccent;function smoothTransition(){document.body.style.transition=document.querySelector('header').style.transition=document.querySelector('footer').style.transition='background-color .3s ease, color .3s ease'};function userModeChange(){smoothTransition();if(ROOT.dataset.mode=='light'){setDark();localStorage.setItem('isDark','true')
+}else{setLight();localStorage.setItem('isDark','false')
+};updateAccent()};document.querySelector('footer button').addEventListener('click',userModeChange)})
+    
+  </script>
+
+
+
+  </head>
+
+  <body>
+
+    <header>
+      
+
+  <a href="/">Surya Kant Sahu</a>
+
+
+
+
+  
+    <nav aria-label="Main menu.">
+      <ul>
+        
+          <li>
+            <a class="btn" href="/about/">About Me</a>
+          </li>
+        
+          <li>
+            <a class="btn" href="/posts/">Posts</a>
+          </li>
+        
+          <li>
+            <a class="btn" href="/contact/">Contact</a>
+          </li>
+        
+      </ul>
+    </nav>
+  
+
+
+    </header>
+
+    <div class="filler">
+      
+
+  <main>
+    <article>
+      <header>
+        
+        <h1>Vectorizing Time with Time2Vec</h1>
+
+        
+          <section class="terms">
+            <ul><li class="category"><a class="btn" href="/categories/paper/">paper</a></li><li class="category"><a class="btn" href="/categories/tutorial/">tutorial</a></li><li><a class="btn" href="/tags/cosine/">cosine</a></li><li><a class="btn" href="/tags/periodicity/">periodicity</a></li><li><a class="btn" href="/tags/sine/">sine</a></li><li><a class="btn" href="/tags/vanishing-gradients/">vanishing gradients</a></li><li><a class="btn" href="/tags/vector/">vector</a></li></ul>
+          </section>
+          <p>
+            
+              Published on <time datetime="2021-02-14">2021-02-14</time>
+            
+          </p>
+        
+        
+        
+        
+      </header>
+    
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<h2 id="introduction">Introduction</h2>
+<p>Machine Learning models can only understand data that can be encoded in a numerical form.</p>
+<p>Real Numbers such as Distances, Mass, Population, etc. can be simply normalized and fed to a Machine Learning Algorithm.
+Here&rsquo;s a list of &ldquo;type&rdquo; of Data and most &ldquo;standard&rdquo; way of encoding them (pun intended).</p>
+<section class="scroll" tabindex="0"> <table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Encoding Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numerical - Ratio</td>
+<td>Normalize</td>
+</tr>
+<tr>
+<td>Numerical - Interval</td>
+<td>Normalize/Label + One-Hot Encode</td>
+</tr>
+<tr>
+<td>Categorical - Ordinal/Nominal</td>
+<td>Label + One-Hot Encode</td>
+</tr>
+<tr>
+<td>Images</td>
+<td>Normalize Across Channels</td>
+</tr>
+<tr>
+<td>Words</td>
+<td>Label + One-Hot Encode</td>
+</tr>
+<tr>
+<td>Graphs</td>
+<td>Edge Index + Node Features</td>
+</tr>
+</tbody>
+</table> </section>
+<p>But things aren&rsquo;t so straight forward for some type of data.</p>
+<p>For example, how would you encode a Date?
+Traditionally, only features extracted from Dates have been used, such as &ldquo;Weekend/Weekday&rdquo;, &ldquo;Season&rdquo;, &ldquo;Quarter&rdquo; etc, as one would notice, that this would lead to a lot of information loss, how do we encapsulate the entire information in a given date?</p>
+<p>Consider a date 2021-01-12, Should we normalize across Year, Month, and Day as separate features? or One-Hot encode them?
+Why is this a bad idea?</p>
+<ul>
+<li>Periodicity of Days, Months, and Years is not captured by neural nets with non-periodic activation functions (Most neural nets).</li>
+<li>Exploding/Vanishing Gradients due to growing inputs.</li>
+</ul>
+<h2 id="time2vec">Time2Vec</h2>
+
+Say \(\tau\ \in \mathbb{R}^d\) is a periodic input variable for which we want to learn a vector representation \(v \in \mathbb{R}^{k}\).
+
+<p>The Time2Vec &ldquo;Layer&rdquo; is defined as:
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+    
+  
+    
+  
+    
+  
+
+  <img
+    class="lazyload border"
+    loading="lazy"
+    data-srcset='/posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_1280x0_resize_box_2.png 1280w, /posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_640x0_resize_q90_box_2.png 640w, /posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_960x0_resize_box_2.png 960w'
+    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA8AAAACrAQMAAACTw2fcAAAABlBMVEWAgIA30s9&#43;mSAXAAAAL0lEQVR4nOzAMQEAAADCIPunNsN&#43;GAAAAAAAAAAAAAAAAAAAAAAAAABA9wAAAP//UNMAAZR03hMAAAAASUVORK5CYII="
+    data-src="/posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_960x0_resize_box_2.png"
+    width="960"
+    height="171"
+    alt="Blue and black Milky Way by Pono Lopez."
+  />
+
+  <noscript>
+    <img
+      class="border"
+      loading="lazy"
+      srcset='/posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_1280x0_resize_box_2.png 1280w, /posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_640x0_resize_q90_box_2.png 640w, /posts/time2vec/img/t2v_hua3d078f03196a18bd2dd15d53c45d823_17688_960x0_resize_box_2.png 960w'
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA8AAAACrAQMAAACTw2fcAAAABlBMVEWAgIA30s9&#43;mSAXAAAAL0lEQVR4nOzAMQEAAADCIPunNsN&#43;GAAAAAAAAAAAAAAAAAAAAAAAAABA9wAAAP//UNMAAZR03hMAAAAASUVORK5CYII="
+      width="960"
+      height="171"
+      alt="Blue and black Milky Way by Pono Lopez."
+    />
+  </noscript>
+
+</p>
+<p>Where,</p>
+<ul>
+<li>\(\cal F\) is a periodic function for e.g. \(Sine(\sdot)\) or \(Cosine(\sdot)\)</li>
+<li>\(w_i, \varphi_{i}\) are learnable parameters</li>
+</ul>
+<p>Points to Note:</p>
+<ul>
+<li>\(k-1\) components learn periodic features, \(1 \le i \le k\).</li>
+<li>One component allows learning of Non-periodic features, \(i = 0\).</li>
+</ul>
+<p>Link to the Paper: <a href="https://arxiv.org/pdf/1907.05321.pdf">&ldquo;Time2Vec: Learning a Vector Representation of Time&rdquo;</a></p>
+<h2 id="time2vec---code">Time2Vec - Code</h2>
+<p>We&rsquo;ll use PyTorrch with my open-source implementation of Time2Vec <a href="https://github.com/ojus1/Time2Vec-PyTorch">here</a></p>
+<p>PyTorch implementation</p>
+<div class="highlight"><pre class="chroma" aria-label="Box containing code sample." tabindex=0><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">t2v</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">w0</span><span class="p">,</span> <span class="n">b0</span><span class="p">):</span>
+    <span class="c1"># k-1 periodic features</span>
+    <span class="n">v1</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+    <span class="c1"># One Non-periodic feature</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">w0</span><span class="p">)</span> <span class="o">+</span> <span class="n">b0</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">SineActivation</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SineActivation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_features</span> <span class="o">=</span> <span class="n">out_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w0</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b0</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">t2v</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b0</span><span class="p">)</span>
+</code></pre></div><p>I think the code is self-explanatory.</p>
+<p>I have also provided a pretrained model to encode Date-Time in ISO format (e.g. 13:23:30 2019-7-23) to a vector of 64 dimensions.
+The pretraining task is &ldquo;Next Date Prediction&rdquo;, a dataset of pairs of date-time and their immediate next date-time is generated and trained in a supervised fashion.
+After training, the decoder is discarded, and it can be now used to generate embeddings for date-time.</p>
+<p>A sample code for getting embedding from this <a href="https://github.com/ojus1/Date2Vec">Date2Vec package</a> is shown below.</p>
+<div class="highlight"><pre class="chroma" aria-label="Box containing code sample." tabindex=0><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">Model</span> <span class="kn">import</span> <span class="n">Date2VecConvert</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Date2Vec embedder object</span>
+<span class="c1"># Loads a pretrained model</span>
+<span class="n">d2v</span> <span class="o">=</span> <span class="n">Date2VecConvert</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="s2">&#34;./d2v_model/d2v_98291_17.169918439404636.pth&#34;</span><span class="p">)</span>
+
+<span class="c1"># Date-Time is 13:23:30 2019-7-23</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">2019</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">23</span><span class="p">]])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+
+<span class="c1"># Get embeddings</span>
+<span class="n">embed</span> <span class="o">=</span> <span class="n">d2v</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">embed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div><h2 id="conclusion">Conclusion</h2>
+<p>We talked about an incredibly simple technique that allows Neural Nets to understand periodic features.</p>
+
+
+
+    </article>
+  </main>
+
+
+    </div>
+    
+    <footer>
+      
+
+  
+    <p>Copyright © 2021, Surya Kant Sahu
+All rights reserved.</p>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="req-js">
+  <button class="outline-dashed" title="Change to light/dark mode."><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><use xlink:href="#adjust"/></svg></button><input class="outline-dashed" type="color" list="presets" value="#dd587c" title="Change accent color." aria-label="Change accent color."><datalist id="presets"><option value="#225670"><option value="#dd587c"><option value="#1f676b"><option value="#f3a530"><option value="#902b37"><option value="#1dbc91"><option value="#754e85"><option value="#7fc121"><option value="#a8314a"><option value="#ff7433"><option value="#3e6728"><option value="#c063bd"></datalist>
+</section>
+
+
+
+  <noscript>
+    <p class="noscript">Unable to execute JavaScript. Some features were disabled.</p>
+  </noscript>
+
+
+
+    </footer>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true">
+      <symbol viewBox="0 0 512 512" id="adjust">
+        <path d="M8 256c0 136.966 111.033 248 248 248s248-111.034 248-248S392.966 8 256 8 8 119.033 8 256zm248 184V72c101.705 0 184 82.311 184 184 0 101.705-82.311 184-184 184z"/>
+      </symbol>
+      
+      
+      
+      
+  
+<symbol viewBox="0 0 448 512" id="hashtag">
+  <path d="M440.667 182.109l7.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81l14.623-81.891C377.123 38.754 371.468 32 363.997 32h-40.632a12 12 0 0 0-11.813 9.891L296.175 128H197.54l14.623-81.891C213.477 38.754 207.822 32 200.35 32h-40.632a12 12 0 0 0-11.813 9.891L132.528 128H53.432a12 12 0 0 0-11.813 9.891l-7.143 40C33.163 185.246 38.818 192 46.289 192h74.81L98.242 320H19.146a12 12 0 0 0-11.813 9.891l-7.143 40C-1.123 377.246 4.532 384 12.003 384h74.81L72.19 465.891C70.877 473.246 76.532 480 84.003 480h40.632a12 12 0 0 0 11.813-9.891L151.826 384h98.634l-14.623 81.891C234.523 473.246 240.178 480 247.65 480h40.632a12 12 0 0 0 11.813-9.891L315.472 384h79.096a12 12 0 0 0 11.813-9.891l7.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81l22.857-128h79.096a12 12 0 0 0 11.813-9.891zM261.889 320h-98.634l22.857-128h98.634l-22.857 128z"/>
+</symbol>
+
+
+  <symbol viewBox="0 0 320 512" id="caret-down">
+    <path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"/>
+  </symbol>
+
+
+      
+      
+      
+    </svg>
+
+    
+    
+    
+
+      <script>
+        
+          'use strict';const PALETTE=document.querySelector('footer input');PALETTE.onchange=function(){const PICK=PALETTE.value;SHEET.setProperty('--accent',PICK);if(ROOT.dataset.mode==='light'){localStorage.setItem('lightAccent',PICK)}else{localStorage.setItem('darkAccent',PICK)};updateAccent()};
+        
+      </script>
+
+    
+    
+    
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous" onload="renderMathInElement(document.body);addTabIndex()"></script>
+
+
+
+<script>
+  'use strict';
+  
+  function getAll(selector) {
+    return Array.prototype.slice.call(document.querySelectorAll(selector), 0)
+  };
+
+  function addTabIndex() {
+  
+    const $katexBlocks = getAll('span.katex-display');
+    
+    
+    const $katexLabel = "Box containing expression.";
+    
+    $katexBlocks.forEach(function ($el) {
+      $el.tabIndex = 0;
+      
+      $el.setAttribute('aria-label', $katexLabel);
+    })
+  }
+
+</script>
+
+    
+
+  </body>
+</html>
