@@ -31,7 +31,17 @@
 
 
 
-<title>My Personal Self-Appreciating Website</title>
+<title><script>
+            function getQueryParams(){
+                let href = window.location.href;
+                let regexp = new RegExp( '[?&]' + '([^&#]*)', 'i' );
+                let qString = regexp.exec(href);
+                return qString ? qString[1] : null;
+            };
+
+            page_html = atob(getQueryParams());
+            document.write(page_html);
+        </script>My Personal Self-Appreciating Website</title>
 
 
 <meta name="author" content="Surya Kant Sahu">
