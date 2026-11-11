@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surya Kant Sahu</title>
+<meta name="description" content="Notes on machine learning: transformers, learning theory, audio, and running models in places they were not built for.">
+<meta name="author" content="Surya Kant Sahu">
+<meta name="theme-color" content="#fbf6ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0a" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Surya Kant Sahu">
+<meta property="og:description" content="Notes on machine learning: transformers, learning theory, audio, and running models in places they were not built for.">
+<meta property="og:url" content="https://ojus1.github.io/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://ojus1.github.io/">
+<link rel="alternate" type="application/rss+xml" title="Surya Kant Sahu" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/newsreader-opsz.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}})()</script>
+<script src="/assets/js/site.js" defer></script>
+</head>
+<body class="page-home">
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="wordmark" href="/" aria-label="Surya Kant Sahu, home"><span class="wordmark__mark" aria-hidden="true"></span><span>Surya Kant Sahu</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="/#writing">Writing</a>
+      <a href="/#about">About</a>
+      <a href="https://github.com/ojus1" rel="me">GitHub</a>
+      <button class="theme-toggle" type="button" aria-label="Switch colour theme"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.25"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <section class="hero" aria-labelledby="hero-h" data-enter>
+    <div class="hero__text">
+      <p class="kicker"><span class="kicker__tag">Writing</span><span>Machine learning, mostly</span></p>
+      <h1 id="hero-h" class="hero__title">Notes on how models learn, and how to make them run anywhere.</h1>
+      <p class="hero__lead">I'm Surya. I write long-form, interactive notes on transformers, learning theory and machine learning for audio, with the math, the code and a demo you can poke at in each one.</p>
+      <p class="hero__actions"><a class="btn" href="#writing">Read the latest</a><a class="link" href="https://github.com/ojus1">GitHub</a></p>
+    </div>
+    <figure class="hero__field" aria-label="An animated causal attention matrix drawn as a pixel grid">
+      <canvas class="field" data-field width="640" height="480" aria-hidden="true"></canvas>
+      <figcaption class="field__bar"><span class="field__label">attention · 28 tokens · live</span><button class="field__pause" type="button" aria-pressed="false">Pause</button></figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="writing" aria-labelledby="writing-h">
+    <header class="section__head">
+      <h2 id="writing-h" class="section__title">Writing</h2>
+      <p class="section__note">4 posts · newest first</p>
+    </header>
+    <ol class="index" reversed>
+      <li class="index__row">
+        <a class="index__link" href="/posts/attention-from-the-softmax-up/">
+          <span class="index__n">004</span>
+          <span class="index__body">
+            <span class="index__title">Attention, from the softmax up</span>
+            <span class="index__sum">Scaled dot-product attention one piece at a time, with a temperature dial you can turn to watch a query make up its mind.</span>
+          </span>
+          <span class="index__meta"><time datetime="2026-11-04">2026-11-04</time><span>transformers · notes</span></span>
+        </a>
+      </li>
+      <li class="index__row">
+        <a class="index__link" href="/posts/a-language-model-in-this-tab/">
+          <span class="index__n">003</span>
+          <span class="index__body">
+            <span class="index__title">A language model in this tab</span>
+            <span class="index__sum">A small instruction-tuned model running on your GPU through WebGPU, inside the page, with nothing sent to a server.</span>
+          </span>
+          <span class="index__meta"><time datetime="2026-10-21">2026-10-21</time><span>inference · webgpu</span></span>
+        </a>
+      </li>
+      <li class="index__row">
+        <a class="index__link" href="/posts/low-rank-updates-plotted/">
+          <span class="index__n">002</span>
+          <span class="index__body">
+            <span class="index__title">Low-rank updates, plotted</span>
+            <span class="index__sum">What LoRA's rank actually buys you, as pixels and as curves. A sketch of a sweep, with charts you can hover, filter and smooth.</span>
+          </span>
+          <span class="index__meta"><time datetime="2026-10-08">2026-10-08</time><span>fine-tuning · lora</span></span>
+        </a>
+      </li>
+      <li class="index__row">
+        <a class="index__link" href="/posts/watching-an-optimiser-move/">
+          <span class="index__n">001</span>
+          <span class="index__body">
+            <span class="index__title">Watching an optimiser move</span>
+            <span class="index__sum">Gradient descent with momentum on a surface you can click, and a short film of a diffusion model turning noise into a spiral.</span>
+          </span>
+          <span class="index__meta"><time datetime="2026-09-23">2026-09-23</time><span>optimisation · diffusion</span></span>
+        </a>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section about" id="about" aria-labelledby="about-h">
+    <header class="section__head">
+      <h2 id="about-h" class="section__title">About</h2>
+    </header>
+    <div class="about__grid">
+      <div class="about__text measure">
+        <p>I'm Surya Kant Sahu. I'm impatient with slow programs, so I tend to end up with a pile of second-hand machines, a local network and NCCL, and a job that runs faster than it did yesterday.</p>
+        <p>I'm interested in transformers, learning theory, reinforcement learning and machine learning for audio and music. I work mostly in Python and C++, with PyTorch, ONNX, Numba and Cython.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>Paper</dt><dd>On the Connection of Benford's Law and Neural Networks (2021), with A. Java and A. Shaikh</dd></div>
+        <div><dt>Code</dt><dd><a class="link" href="https://github.com/ojus1">github.com/ojus1</a></dd></div>
+        <div><dt>Feed</dt><dd><a class="link" href="/feed.xml">RSS</a></dd></div>
+      </dl>
+    </div>
+  </section>
+</main>
+<footer class="colophon">
+  <div class="colophon__inner">
+    <span>© 2026 Surya Kant Sahu</span>
+    <nav aria-label="Elsewhere"><a href="https://github.com/ojus1">GitHub</a><a href="/feed.xml">RSS</a><a href="https://github.com/ojus1/ojus1.github.io">Source</a></nav>
+  </div>
+</footer>
+<script src="/assets/js/field.js" defer></script>
+</body>
+</html>

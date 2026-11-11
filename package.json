@@ -1,10 +1,10 @@
 {
   "name": "ojus1.github.io",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Source for ojus1.github.io",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/build.mjs",
+    "serve": "npx --yes http-server -c-1 -p 8080 ."
   },
   "repository": {
     "type": "git",
@@ -25,10 +25,11 @@
     "d3": "^7.9.2",
     "esbuild": "^0.28.2",
     "gray-matter": "^4.0.3",
-    "katex": "^0.19.1",
+    "katex": "^0.16.47",
     "markdown-it": "^15.0.3",
     "markdown-it-anchor": "^10.1.0",
     "markdown-it-footnote": "^4.0.0",
     "shiki": "^4.6.0"
-  }
+  },
+  "private": true
 }

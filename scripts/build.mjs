@@ -41,7 +41,8 @@ async function vendor() {
   await copy('node_modules/d3/dist/d3.min.js', 'assets/vendor/d3.min.js');
   // WebLLM: bundle the engine into a module worker so inference never blocks the page.
   await esbuild.build({ entryPoints: [r('src/llm-worker.js')], bundle: true, format: 'esm', minify: true, outfile: r('assets/js/llm-worker.js'), logLevel: 'warning' });
-  await esbuild.build({ entryPoints: [r('src/llm-client.js')], bundle: true, format: 'esm', minify: true, outfile: r('assets/js/llm-client.js'), logLevel: 'warning' });
+  await fs.rm(r('assets/js/llm'), { recursive: true, force: true });
+  await esbuild.build({ entryPoints: [r('src/llm-client.js')], bundle: true, splitting: true, format: 'esm', minify: true, outdir: r('assets/js/llm'), chunkNames: 'chunk-[hash]', logLevel: 'warning' });
 }
 
 // ---------- markdown ----------
@@ -96,8 +97,8 @@ function head({ title, description, url, extra = '', type = 'website' }) {
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(description)}">
 <meta name="author" content="${esc(SITE.author)}">
-<meta name="theme-color" content="#f6f4ee" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#11110f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf6ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0a" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="${type}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
@@ -138,7 +139,9 @@ function postPage(p, prev, next) {
   const libs = [];
   if (p.math) libs.push('<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">');
   if (p.d3) libs.push('<script src="/assets/vendor/d3.min.js" defer></script>');
-  for (const s of p.scripts || []) libs.push(s.endsWith('.mjs') || s.includes('module') ? `<script type="module" src="${s}"></script>` : `<script src="${s}" defer></script>`);
+  if (p.scripts?.length) libs.push('<script src="/assets/js/widgets/common.js" defer></script>');
+  for (const s of p.scripts || []) libs.push(`<script src="/assets/js/widgets/${s}.js" defer></script>`);
+  for (const s of p.modules || []) libs.push(`<script type="module" src="${s}"></script>`);
   const bib = `@article{sahu${p.date.getUTCFullYear()}${p.slug.split('-')[0]},
   author = {Surya Kant Sahu},
   title  = {${p.title}},
@@ -211,9 +214,9 @@ ${header('home')}
       <p class="hero__lead">I'm Surya. I write long-form, interactive notes on transformers, learning theory and machine learning for audio, with the math, the code and a demo you can poke at in each one.</p>
       <p class="hero__actions"><a class="btn" href="#writing">Read the latest</a><a class="link" href="${SITE.github}">GitHub</a></p>
     </div>
-    <figure class="hero__field" aria-label="An animated loss surface drawn in characters">
+    <figure class="hero__field" aria-label="An animated causal attention matrix drawn as a pixel grid">
       <canvas class="field" data-field width="640" height="480" aria-hidden="true"></canvas>
-      <figcaption class="field__bar"><span class="field__label">loss(θ) · live</span><button class="field__pause" type="button" aria-pressed="false">Pause</button></figcaption>
+      <figcaption class="field__bar"><span class="field__label">attention · 28 tokens · live</span><button class="field__pause" type="button" aria-pressed="false">Pause</button></figcaption>
     </figure>
   </section>
 
