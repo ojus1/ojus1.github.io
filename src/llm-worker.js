@@ -23,7 +23,7 @@ self.onmessage = async ({ data }) => {
         },
       });
       // one tiny generation so kernel or limit errors surface now, not on the first question
-      await generator([{ role: 'user', content: 'Hi' }], { max_new_tokens: 1 });
+      await generator([{ role: 'system', content: 'You are a helpful assistant.' }, { role: 'user', content: 'Say hello and name one colour.' }], { max_new_tokens: 8 });
       self.postMessage({ type: 'ready' });
     } catch (e) {
       generator = null;
