@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A language model in this tab · Surya Kant Sahu</title>
+<meta name="description" content="A small instruction-tuned model running on your GPU through WebGPU, inside the page, with nothing sent to a server.">
+<meta name="author" content="Surya Kant Sahu">
+<meta name="theme-color" content="#fbf6ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0a" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="A language model in this tab">
+<meta property="og:description" content="A small instruction-tuned model running on your GPU through WebGPU, inside the page, with nothing sent to a server.">
+<meta property="og:url" content="https://ojus1.github.io/posts/a-language-model-in-this-tab/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://ojus1.github.io/posts/a-language-model-in-this-tab/">
+<link rel="alternate" type="application/rss+xml" title="Surya Kant Sahu" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/newsreader-opsz.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script type="module" src="/assets/js/llm/llm-client.js"></script>
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}})()</script>
+<script src="/assets/js/site.js" defer></script>
+</head>
+<body class="page-post">
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="wordmark" href="/" aria-label="Surya Kant Sahu, home"><span class="wordmark__mark" aria-hidden="true"></span><span>Surya Kant Sahu</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="/#writing" aria-current="page">Writing</a>
+      <a href="/#about">About</a>
+      <a href="https://github.com/ojus1" rel="me">GitHub</a>
+      <button class="theme-toggle" type="button" aria-label="Switch colour theme"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.25"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <article class="post">
+    <header class="post__head">
+      <p class="kicker"><span class="kicker__tag">Placeholder post</span><span>2 min read</span></p>
+      <h1 class="post__title">A language model in this tab</h1>
+      <p class="post__dek">A small instruction-tuned model running on your GPU through WebGPU, inside the page, with nothing sent to a server.</p>
+      <dl class="byline">
+        <div><dt>Author</dt><dd>Surya Kant Sahu</dd></div>
+        <div><dt>Published</dt><dd><time datetime="2026-10-21">21 October 2026</time></dd></div>
+        <div><dt>Topics</dt><dd>inference, webgpu</dd></div>
+      </dl>
+    </header>
+    <div class="post__grid">
+      <nav class="toc" aria-label="Contents">
+        <details class="toc__details" open>
+          <summary class="toc__title">Contents</summary>
+          <ol class="toc__list"><li class="toc__item toc__item--h2"><a href="#what-happens-when-you-press-load"><span class="toc__n">01</span><span>What happens when you press Load</span></a></li><li class="toc__item toc__item--h2"><a href="#the-client-in-brief"><span class="toc__n">02</span><span>The client, in brief</span></a></li><li class="toc__item toc__item--h2"><a href="#models-on-the-menu"><span class="toc__n">03</span><span>Models on the menu</span></a></li></ol>
+        </details>
+      </nav>
+      <div class="prose" id="prose">
+<p class="lede">The box below is a chat with a real language model. When you press Load model, your browser downloads quantised weights once, compiles a handful of WebGPU kernels and runs every token on your own graphics card. There is no API behind it. This is a placeholder post, but the demo is real.</p>
+<figure class="fig wide">
+<div class="fig__frame" data-llm></div>
+<figcaption class="fig__cap"><span class="fig__label">Figure 1</span>WebLLM running in a worker thread. Speed depends on your GPU; a recent laptop manages tens of tokens per second on the smallest model.</figcaption>
+</figure>
+<h2 id="what-happens-when-you-press-load" tabindex="-1">What happens when you press Load</h2>
+<ol>
+<li>The page starts a module worker so the model never blocks scrolling or typing.</li>
+<li>The worker fetches the weights in 4-bit groups (<code>q4f16_1</code>: 4-bit weights, 16-bit activations) and stores them in the browser’s Cache Storage.</li>
+<li>It loads a precompiled WebAssembly module that holds the model’s compute kernels as WGSL shaders.</li>
+<li>Each new token is one forward pass on the GPU, with the KV cache kept in GPU memory between steps.</li>
+</ol>
+<p>The memory needed is roughly the parameter count times the bits per weight:</p>
+<p class="katex-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>bytes</mtext><mo>≈</mo><msub><mi>N</mi><mtext>params</mtext></msub><mo>⋅</mo><mfrac><mi>b</mi><mn>8</mn></mfrac><mo>+</mo><munder><munder><mrow><mn>2</mn><mo>⋅</mo><mi>L</mi><mo>⋅</mo><msub><mi>n</mi><mtext>ctx</mtext></msub><mo>⋅</mo><mi>d</mi><mo>⋅</mo><mn>2</mn></mrow><mo stretchy="true">⏟</mo></munder><mtext>KV cache, fp16</mtext></munder></mrow><annotation encoding="application/x-tex">\text{bytes} \approx N_\text{params} \cdot \frac{b}{8} + \underbrace{2 \cdot L \cdot n_\text{ctx} \cdot d \cdot 2}_{\text{KV cache, fp16}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">bytes</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord mtight">params</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.0574em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">8</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.3147em;vertical-align:-1.6202em;"></span><span class="minner munder"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-1.5159em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">KV cache, fp16</span></span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="minner munder"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span class="svg-align" style="top:-2.202em;"><span class="pstrut" style="height:3em;"></span><span class="stretchy" style="height:0.548em;min-width:1.6em;"><span class="brace-left" style="height:0.548em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="0.548em" viewBox="0 0 400000 548" preserveAspectRatio="xMinYMin slice"><path d="M0 6l6-6h17c12.688 0 19.313.3 20 1 4 4 7.313 8.3 10 13
+ 35.313 51.3 80.813 93.8 136.5 127.5 55.688 33.7 117.188 55.8 184.5 66.5.688
+ 0 2 .3 4 1 18.688 2.7 76 4.3 172 5h399450v120H429l-6-1c-124.688-8-235-61.7
+-331-161C60.687 138.7 32.312 99.3 7 54L0 41V6z"/></svg></span><span class="brace-center" style="height:0.548em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="0.548em" viewBox="0 0 400000 548" preserveAspectRatio="xMidYMin slice"><path d="M199572 214
+c100.7 8.3 195.3 44 280 108 55.3 42 101.7 93 139 153l9 14c2.7-4 5.7-8.7 9-14
+ 53.3-86.7 123.7-153 211-199 66.7-36 137.3-56.3 212-62h199568v120H200432c-178.3
+ 11.7-311.7 78.3-403 201-6 8-9.7 12-11 12-.7.7-6.7 1-18 1s-17.3-.3-18-1c-1.3 0
+-5-4-11-12-44.7-59.3-101.3-106.3-170-141s-145.3-54.3-229-60H0V214z"/></svg></span><span class="brace-right" style="height:0.548em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="0.548em" viewBox="0 0 400000 548" preserveAspectRatio="xMaxYMin slice"><path d="M399994 0l6 6v35l-6 11c-56 104-135.3 181.3-238 232-57.3
+ 28.7-117 45-179 50H-300V214h399897c43.3-7 81-15 113-26 100.7-33 179.7-91 237
+-174 2.7-5 6-9 10-13 .7-1 7.3-1 20-1h17z"/></svg></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord mtight">ctx</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.798em;"><span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.6202em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p>For a 360M-parameter model at <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">b = 4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span> that is about 180 MB of weights before overhead, which is why it fits on almost anything with a GPU.</p>
+<h2 id="the-client-in-brief" tabindex="-1">The client, in brief</h2>
+<p>The page talks to the worker through an OpenAI-shaped API, so streaming looks familiar:<sup class="fn-ref"><a href="#fn1" id="fnref1" data-fn="1">1</a></sup></p>
+<figure class="code" data-lang="javascript"><figcaption class="code__bar"><span class="code__name">llm-client.js</span><button class="code__copy" type="button" aria-label="Copy code"><span>Copy</span></button></figcaption><pre class="shiki shiki-themes github-light vitesse-dark" style="--shiki-light:#24292e;--shiki-dark:#dbd7caee;--shiki-light-bg:#fff;--shiki-dark-bg:#121212" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375">import</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> {</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> CreateWebWorkerMLCEngine</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> }</span><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375"> from</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> '</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">@mlc-ai/web-llm</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676">const</span><span style="--shiki-light:#005CC5;--shiki-dark:#BD976A"> worker</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676"> new</span><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665"> Worker</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">(</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">/assets/js/llm-worker.js</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">,</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> {</span><span style="--shiki-light:#24292E;--shiki-dark:#B8A965"> type</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">:</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> '</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">module</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> });</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676">const</span><span style="--shiki-light:#005CC5;--shiki-dark:#BD976A"> engine</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =</span><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375"> await</span><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665"> CreateWebWorkerMLCEngine</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">(</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">worker</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">,</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> '</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">SmolLM2-360M-Instruct-q4f16_1-MLC</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">,</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> {</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665">  initProgressCallback</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">:</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> (</span><span style="--shiki-light:#E36209;--shiki-dark:#BD976A">r</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">)</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =></span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">bar</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">style</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">width</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> `</span><span style="--shiki-light:#032F62;--shiki-dark:#4D9375">${</span><span style="--shiki-light:#24292E;--shiki-dark:#C98A7D">r</span><span style="--shiki-light:#032F62;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#C98A7D">progress</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676"> *</span><span style="--shiki-light:#005CC5;--shiki-dark:#4C9A91"> 100</span><span style="--shiki-light:#032F62;--shiki-dark:#4D9375">}</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">%</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">`</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">),</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#666666">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676">const</span><span style="--shiki-light:#005CC5;--shiki-dark:#BD976A"> stream</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =</span><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375"> await</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> engine</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">chat</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">completions</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665">create</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">({</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#B8A965">  messages</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">:</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> [{</span><span style="--shiki-light:#24292E;--shiki-dark:#B8A965"> role</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">:</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> '</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">user</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">,</span><span style="--shiki-light:#24292E;--shiki-dark:#B8A965"> content</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">:</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> '</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">Why is the sky blue?</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> }],</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#B8A965">  stream</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">:</span><span style="--shiki-light:#005CC5;--shiki-dark:#4D9375"> true</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">,</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#666666">});</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375">for</span><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375"> await</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676">const</span><span style="--shiki-light:#005CC5;--shiki-dark:#BD976A"> chunk</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676"> of</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> stream</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">)</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> out</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">textContent</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676"> +=</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> chunk</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">choices</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#4C9A91">0</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">]?.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">delta</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">?.</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">content</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676"> ??</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> ''</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">;</span></span></code></pre></figure>
+<p>And the worker is three lines:</p>
+<figure class="code" data-lang="javascript"><figcaption class="code__bar"><span class="code__name">llm-worker.js</span><button class="code__copy" type="button" aria-label="Copy code"><span>Copy</span></button></figcaption><pre class="shiki shiki-themes github-light vitesse-dark" style="--shiki-light:#24292e;--shiki-dark:#dbd7caee;--shiki-light-bg:#fff;--shiki-dark-bg:#121212" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375">import</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> {</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> WebWorkerMLCEngineHandler</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> }</span><span style="--shiki-light:#D73A49;--shiki-dark:#4D9375"> from</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77"> '</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D">@mlc-ai/web-llm</span><span style="--shiki-light:#032F62;--shiki-dark:#C98A7D77">'</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">;</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676">const</span><span style="--shiki-light:#005CC5;--shiki-dark:#BD976A"> handler</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =</span><span style="--shiki-light:#D73A49;--shiki-dark:#CB7676"> new</span><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665"> WebWorkerMLCEngineHandler</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">();</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">self</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665">onmessage</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =</span><span style="--shiki-light:#24292E;--shiki-dark:#666666"> (</span><span style="--shiki-light:#E36209;--shiki-dark:#BD976A">msg</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">)</span><span style="--shiki-light:#D73A49;--shiki-dark:#666666"> =></span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A"> handler</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#80A665">onmessage</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">(</span><span style="--shiki-light:#24292E;--shiki-dark:#BD976A">msg</span><span style="--shiki-light:#24292E;--shiki-dark:#666666">);</span></span></code></pre></figure>
+<h2 id="models-on-the-menu" tabindex="-1">Models on the menu</h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">Parameters</th>
+<th style="text-align:right">Download</th>
+<th>Good for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SmolLM2 Instruct</td>
+<td style="text-align:right">360M</td>
+<td style="text-align:right">≈ 270 MB</td>
+<td>trying it out</td>
+</tr>
+<tr>
+<td>Qwen2.5 Instruct</td>
+<td style="text-align:right">0.5B</td>
+<td style="text-align:right">≈ 280 MB</td>
+<td>short answers, some code</td>
+</tr>
+<tr>
+<td>Llama 3.2 Instruct</td>
+<td style="text-align:right">1.2B</td>
+<td style="text-align:right">≈ 880 MB</td>
+<td>the best replies here</td>
+</tr>
+</tbody>
+</table>
+<p>Small models are confidently wrong often. That is part of the point: it is easier to build intuition for sampling, context length and quantisation when you can watch a model fail up close, on your own machine.<sup class="fn-ref"><a href="#fn2" id="fnref2" data-fn="2">2</a></sup></p>
+<section class="footnotes" aria-label="Notes"><h2 class="footnotes__title">Notes</h2><ol class="footnotes__list">
+<li id="fn1" class="footnote-item"><p>The engine follows the shape of the OpenAI chat completions API, including streaming chunks and <code>max_tokens</code>. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>Because the model runs locally, nothing you type leaves your browser. The only network traffic is the one-time weight download. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+        <section class="cite" aria-labelledby="cite-h">
+          <h2 id="cite-h" class="cite__title">Cite this post</h2>
+          <figure class="code" data-lang="bibtex"><figcaption class="code__bar"><span class="code__name">BibTeX</span><button class="code__copy" type="button" aria-label="Copy citation"><span>Copy</span></button></figcaption><pre class="shiki shiki-themes github-light vitesse-dark" style="--shiki-light:#24292e;--shiki-dark:#dbd7caee;--shiki-light-bg:#fff;--shiki-dark-bg:#121212" tabindex="0"><code><span class="line"><span>@article{sahu2026a,</span></span>
+<span class="line"><span>  author = {Surya Kant Sahu},</span></span>
+<span class="line"><span>  title  = {A language model in this tab},</span></span>
+<span class="line"><span>  year   = {2026},</span></span>
+<span class="line"><span>  url    = {https://ojus1.github.io/posts/a-language-model-in-this-tab/}</span></span>
+<span class="line"><span>}</span></span></code></pre></figure>
+        </section>
+      </div>
+    </div>
+    <nav class="pager" aria-label="More writing">
+      <a class="pager__link" href="/posts/low-rank-updates-plotted/"><span class="pager__dir">Older</span><span class="pager__title">Low-rank updates, plotted</span></a>
+      <a class="pager__link pager__link--next" href="/posts/attention-from-the-softmax-up/"><span class="pager__dir">Newer</span><span class="pager__title">Attention, from the softmax up</span></a>
+    </nav>
+  </article>
+</main>
+<footer class="colophon">
+  <div class="colophon__inner">
+    <span>© 2026 Surya Kant Sahu</span>
+    <nav aria-label="Elsewhere"><a href="https://github.com/ojus1">GitHub</a><a href="/feed.xml">RSS</a><a href="https://github.com/ojus1/ojus1.github.io">Source</a></nav>
+  </div>
+</footer>
+</body>
+</html>
