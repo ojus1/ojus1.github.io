@@ -10,6 +10,7 @@ import anchor from 'markdown-it-anchor';
 import mdKatex from '@vscode/markdown-it-katex';
 import { createHighlighter } from 'shiki';
 import * as esbuild from 'esbuild';
+import { inlineLogo } from './logo.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = {
@@ -107,7 +108,9 @@ function head({ title, description, url, extra = '', type = 'website' }) {
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="${esc(url)}">
 <link rel="alternate" type="application/rss+xml" title="${esc(SITE.title)}" href="/feed.xml">
+<link rel="icon" href="/assets/favicon.ico" sizes="48x48">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/newsreader-opsz.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/geist-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
@@ -119,7 +122,7 @@ ${extra}${themeBoot}
 const header = (current) => `<a class="skip" href="#main">Skip to content</a>
 <header class="masthead">
   <div class="masthead__inner">
-    <a class="wordmark" href="/" aria-label="Surya Kant Sahu, home"><span class="wordmark__mark" aria-hidden="true"></span><span>Surya Kant Sahu</span></a>
+    <a class="wordmark" href="/" aria-label="Surya Kant Sahu, home">${inlineLogo()}<span>Surya Kant Sahu</span></a>
     <nav class="nav" aria-label="Main">
       <a href="/#writing"${current === 'writing' ? ' aria-current="page"' : ''}>Writing</a>
       <a href="/#about">About</a>
