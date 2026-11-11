@@ -39,10 +39,11 @@ async function vendor() {
   const kf = await fs.readdir(r('node_modules/katex/dist/fonts'));
   for (const f of kf.filter((f) => f.endsWith('.woff2'))) await copy('node_modules/katex/dist/fonts/' + f, 'assets/vendor/katex/fonts/' + f);
   await copy('node_modules/d3/dist/d3.min.js', 'assets/vendor/d3.min.js');
-  // WebLLM: bundle the engine into a module worker so inference never blocks the page.
-  await esbuild.build({ entryPoints: [r('src/llm-worker.js')], bundle: true, format: 'esm', minify: true, outfile: r('assets/js/llm-worker.js'), logLevel: 'warning' });
+  // In-browser LLM: client and worker bundled with esbuild. The client loads the library
+  // and the worker only when the reader presses Load, so the post itself stays light.
   await fs.rm(r('assets/js/llm'), { recursive: true, force: true });
-  await esbuild.build({ entryPoints: [r('src/llm-client.js')], bundle: true, splitting: true, format: 'esm', minify: true, outdir: r('assets/js/llm'), chunkNames: 'chunk-[hash]', logLevel: 'warning' });
+  await fs.rm(r('assets/js/llm-worker.js'), { force: true });
+  await esbuild.build({ entryPoints: [r('src/llm-client.js'), r('src/llm-worker.js')], bundle: true, splitting: true, format: 'esm', minify: true, outdir: r('assets/js/llm'), chunkNames: 'chunk-[hash]', external: ['https://*'], logLevel: 'warning' });
 }
 
 // ---------- markdown ----------

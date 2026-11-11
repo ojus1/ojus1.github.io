@@ -38,4 +38,4 @@ Commit the build output along with the source, since Pages serves the repository
 - `assets/js/site.js`: theme toggle, copy buttons, margin notes, contents highlighting
 - `assets/js/field.js`: the home page attention matrix
 - `assets/js/widgets/`: post widgets (charts, LoRA heatmaps, attention, gradient descent)
-- `src/llm-*.js`: WebLLM client and worker, bundled by esbuild into `assets/js/`
+- `src/llm-*.js`: Transformers.js (pinned, from jsDelivr) chat client and worker (WebGPU with a CPU fallback), bundled by esbuild into `assets/js/llm/`
