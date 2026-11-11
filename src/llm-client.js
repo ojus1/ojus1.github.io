@@ -15,6 +15,9 @@ async function gpuPlan() {
   try {
     const a = await navigator.gpu.requestAdapter();
     if (!a) return null;
+    // ONNX Runtime's WebGPU kernels bind up to 10 storage buffers in one shader.
+    // Some browsers (Firefox at the time of writing) allow fewer, so use the CPU there.
+    if (a.limits.maxStorageBuffersPerShaderStage < 10) return { tooSmall: a.limits.maxStorageBuffersPerShaderStage };
     return { dtype: a.features.has('shader-f16') ? 'q4f16' : 'q4' };
   } catch (e) { return null; }
 }
@@ -46,7 +49,7 @@ function mount(host) {
   const setStatus = (text, state) => { status.textContent = text; status.dataset.state = state; };
   sys('Nothing downloads until you press Load model. The weights come once from Hugging Face and are cached by your browser. After that the model runs on your machine, on the GPU through WebGPU where your browser allows it and on the CPU otherwise.');
 
-  let worker = null, busy = false, onMsg = null;
+  let worker = null, busy = false, onMsg = null, forceCpu = false, onGpu = false, retryText = null;
   const history = [{ role: 'system', content: 'You are a concise, friendly assistant inside a blog post about running language models in the browser. Answer in at most three sentences.' }];
 
   const tryLoad = (model, device, dtype, note) => new Promise((resolve) => {
@@ -68,7 +71,8 @@ function mount(host) {
     load.disabled = true; sel.disabled = true; setStatus('Loading', 'busy'); fill.style.width = '0';
     const note = sys('Starting…');
     const model = sel.value, name = sel.selectedOptions[0].textContent.split(' · ')[0];
-    const gpu = await gpuPlan();
+    let gpu = forceCpu ? null : await gpuPlan();
+    if (gpu?.tooSmall) { note.textContent = `Your browser's WebGPU allows ${gpu.tooSmall} storage buffers per shader and these kernels need 10, so the model will run on the CPU.`; gpu = null; }
     let res = { ok: false }, where = '';
     if (gpu) {
       res = await tryLoad(model, 'webgpu', gpu.dtype, note);
@@ -76,7 +80,7 @@ function mount(host) {
       if (!res.ok) note.textContent = `WebGPU could not run it here (${res.message.slice(0, 140)}). Switching to the CPU…`;
     }
     if (!res.ok) {
-      const cpuNote = gpu ? sys('Loading the CPU build…') : note;
+      const cpuNote = gpu || forceCpu ? sys('Loading the CPU build…') : sys('Loading…');
       res = await tryLoad(model, 'wasm', 'q8', cpuNote);
       where = 'CPU · WebAssembly';
     }
@@ -84,11 +88,12 @@ function mount(host) {
       setStatus('Failed', 'error'); note.textContent = 'Could not load the model: ' + res.message;
       load.disabled = false; sel.disabled = false; return;
     }
-    fill.style.width = '100%'; sDev.textContent = where;
+    fill.style.width = '100%'; sDev.textContent = where; onGpu = where.startsWith('GPU');
     setStatus('Ready · ' + name, 'ready');
     sys(`${name} is loaded and running on your ${where.startsWith('GPU') ? 'GPU' : 'CPU'}. Nothing you type leaves this page.`);
     load.disabled = false; sel.disabled = false; load.textContent = 'Switch model';
     input.disabled = false; send.disabled = false; input.placeholder = 'Ask it something'; input.focus();
+    if (retryText) { input.value = retryText; retryText = null; form.requestSubmit(); }
   });
 
   form.addEventListener('submit', (ev) => {
@@ -102,6 +107,14 @@ function mount(host) {
     const t0 = performance.now(); let first = 0, n = 0, reply = '';
     const finish = (err) => {
       out.classList.remove('is-streaming');
+      if (err && onGpu) {
+        // the GPU path failed mid-generation: reload on the CPU and ask again
+        history.pop(); out.remove(); log.lastChild?.remove();
+        busy = false; onMsg = null; forceCpu = true; retryText = text;
+        sys('The GPU could not run this answer (' + String(err).slice(0, 120) + '). Reloading on the CPU and asking again…');
+        load.disabled = false; load.click();
+        return;
+      }
       if (err) out.textContent = (reply ? reply + '\n\n' : '') + 'Generation stopped: ' + err;
       else history.push({ role: 'assistant', content: reply });
       busy = false; send.disabled = false; load.disabled = false; setStatus('Ready', 'ready'); input.focus();
